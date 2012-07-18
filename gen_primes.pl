@@ -16,7 +16,7 @@
 use 5.010;
 
 our @all_primes_array = ();
-use constant INTERVAL_SIZE => 100;
+use constant INTERVAL_SIZE => 100; # used for printing intervals
 
 sub round_to_interval($)
 {
@@ -27,12 +27,13 @@ sub is_prime($)
 {
   $num = $_[0];
   foreach $possible_factor (@all_primes_array) {
-    return(1) if ($possible_factor > sqrt($num));
-    return("")  if ($num % $possible_factor == 0);
+    return(1)  if ($possible_factor > sqrt($num));
+    return("") if ($num % $possible_factor == 0);
   }
   return(1);
 }
 
+# prints without saving any information
 sub print_primes_until($)
 {
   %all_primes = ();
@@ -41,17 +42,18 @@ sub print_primes_until($)
   @current_range = ();
   foreach $possible_prime (2 .. $_[0]) {
     if (is_prime($possible_prime)) {
-      $range_min = round_to_interval($possible_prime)+1;
-      $range_min = 2 if ($range_min==1); # special beginning case
+      $prime_range_min = round_to_interval($possible_prime)+1;
+      $prime_range_min = 2 if ($prime_range_min==1); # special beginning case
 
       # print after collecting this range, much more efficient than
       # printing after every prime
-      if ($range_min > $current_min) {
+      if ($prime_range_min > $current_min) {
         $current_max = round_to_interval($current_min + 100);
-        print "$current_min-$current_max : @current_range : @{[scalar @current_range]}\n";
+        print "$current_min-$current_max: @current_range : @{[scalar @current_range]}\n";
         @current_range = ($possible_prime);
-        $current_min = $range_min
-      } else {
+        $current_min = $prime_range_min
+      }
+      else {
         push(@current_range,$possible_prime);
       }
       push @all_primes_array, $possible_prime;
@@ -59,9 +61,10 @@ sub print_primes_until($)
   }
   # flush the remainder of the collection
   $current_max = round_to_interval($current_min + 100);
-  print "$current_min-$current_max : @current_range : @{[scalar @current_range]}\n";
+  print "$current_min-$current_max: @current_range : @{[scalar @current_range]}\n";
  
   return(1)
 }
 
-print_primes_until(1000)
+# run to the given command-line argument number, or default to run to 10000
+($#ARGV == 0) ? print_primes_until(@ARGV[0]) : print_primes_until(10000);

@@ -15,8 +15,9 @@
 
 $all_primes = Hash.new
 $all_primes_array = Array.new
-
 $interval_size = 100
+
+# check if any prime from 2 to sqrt(`num`) is a factor of `num`
 def is_prime? num
   $all_primes_array.each do |possible_factor|
     return true if possible_factor > Math.sqrt(num)
@@ -25,11 +26,12 @@ def is_prime? num
   return true
 end
 
-def generate_until num
+# returns a Hash of arrays, key is the min of the range to be printed 
+def generate_primes_until num
   $all_primes = Hash.new
   (2..num).each do |possible_prime|
     if is_prime? possible_prime
-      key = (round_to_hundreds possible_prime)+1
+      key = (round_to_interval possible_prime)+1
       key = 2 if key==1
       $all_primes[key] = Array.new if $all_primes[key].nil?
       $all_primes[key].push(possible_prime)
@@ -39,23 +41,47 @@ def generate_until num
   return $all_primes
 end
 
-def round_to_hundreds num
-  num / 100 * 100
+# prints directly without saving more than one range in memory at a time
+def print_primes_until num
+  current_min = 2
+  current_range = Array.new
+  $all_primes_array = Array.new
+  (2..num).each do |possible_prime|
+    if is_prime? possible_prime
+      prime_range_min = (round_to_interval possible_prime)+1
+      prime_range_min = 2 if prime_range_min==1
+  
+      if (prime_range_min > current_min)
+        puts "#{current_min}-#{round_to_interval(current_min+100)}: #{current_range.join(" ")} : #{current_range.length}"
+        current_range = [possible_prime]
+        current_min = prime_range_min
+      else
+        current_range.push(possible_prime)
+      end
+      $all_primes_array.push(possible_prime)
+    end
+  end
+  # flush the remaining
+  puts "#{current_min}-#{round_to_interval(current_min+100)}: #{current_range.join(" ")} : #{current_range.length}"
+  return nil
+end
+
+def round_to_interval num
+  num / $interval_size * $interval_size
 end
 
 def print_primes
   $all_primes.sort.each do |min, primes|
-    print "#{min}-#{round_to_hundreds(min+100)}: "
-    print primes.join(" ")
-    puts " : #{primes.length}"
+    puts "#{min}-#{round_to_interval(min+100)}: #{primes.join(" ")} : #{primes.length}"
   end
 end
 
 # main
 if __FILE__ == $0
   default_number = 10000
-  ARGV[0].nil? ? generate_until(default_number) : generate_until(ARGV[0].to_i) rescue raise "Argument must be an integer"
-  print_primes
+  #ARGV[0].nil? ? generate_primes_until(default_number) : generate_primes_until(ARGV[0].to_i)
+  #print_primes
+  ARGV[0].nil? ? print_primes_until(default_number) : print_primes_until(ARGV[0].to_i)
 
 end
 
