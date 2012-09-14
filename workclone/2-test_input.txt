@@ -1,0 +1,7 @@
+Tokyo
+12868000
+Kanagawa
+8943000
+Osaka
+8801000
+quit

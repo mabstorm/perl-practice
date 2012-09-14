@@ -1,0 +1,66 @@
+# Michael Bailey
+
+
+# By single SQL statement, get the name of instructor, the e-mail address of instructor, the name of training course and schedule which student’s email-address is “csam@icm.co.jp” from the database.
+#
+# I have assumed that "schedule" here means "schedule date" since "schedule" is not a field. The Japanese, "nichiji" also seems to indicate that this is correct.
+#
+# The English instructions do not mention whether the student should have `attended` the course or not, but the Japanese instructions say "受講生", so maybe `attend_status` should be required to be `YES`.
+
+
+select 
+    schedule.schedule_date,
+    instructor.last_name as instructor_last_name,
+    instructor.first_name as instructor_first_name,
+    instructor.e_mail as instructor_e_mail,
+    course.course_title
+from
+    student,
+    attendance,
+    schedule,
+    instructor,
+    course
+where
+    attendance.student_id = student.student_id
+ and student.e_mail = 'csam@icm.co.jp'
+ and schedule.schedule_id = attendance.schedule_id
+ and instructor.instructor_id = schedule.instructor_id
+ and course.course_id = schedule.course_id;
+
+# if requiring to attend this course, add this line:
+ and attendance.attend_status = 'YES'.
+
+
+
+# In addition, write how keys and indexes were used in text file for submission.
+
+
+Keys, all set as Primary Keys, indexed each time they appear:
+student_id
+schedule_id
+instructor_id
+course_id
+
+`student_id` is a primary key of table `student`.
+It is used as an identifier for a particular student.
+It is used in the `attendance` table to link a particular student to a particular schedule and give information about attendance.
+
+`schedule_id` is a primary key of table `schedule`.
+It identifies a particular schedule.
+It is a lookup key between the `schedule` table and the `attendance` table.
+
+`instructor_id` is a primary key of table `instructor`.
+It identifies a particular instructor.
+It is used to link an `instructor` to a `schedule`.
+
+`course_id` is a primary key of table `course`.
+It identifies a particular course.
+It is used to link a `course` to a `schedule`.
+
+
+Keys are used to represent repeatable information, reducing redundancy. For example, it would be a waste of space to repeat an instructor's name and email for every course they taught.
+
+Indexes are used to speed up the process of using keys to link information across tables. MySQL builds a structure, usually a BTREE, based on the indexed column. This requires space to store and time to build initially, but it greatly reduces the time needed to lookup something within the indexed field.
+This is important when using keys as keys combine information across tables, like we did in this practice exercise. If the keys were not indexed, matching keys across tables would take much longer.
+
+

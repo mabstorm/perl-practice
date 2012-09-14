@@ -1,0 +1,4 @@
+---- input data ---
+1,Tokyo,12868000
+2,Kanagawa,8943000
+3,Osaka,8801000
